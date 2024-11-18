@@ -46,6 +46,7 @@ export enum FP {
   Q1 = "Q1",
   Q2 = "Q2",
   Q3 = "Q3",
+  Q4 = "Q4",
 }
 
 export interface EntityPublicFloat {
@@ -378,14 +379,14 @@ export interface DefinedContributionPlanEmployerMatchingContributionPercent {
   units:       DefinedContributionPlanEmployerMatchingContributionPercentUnits;
 }
 
-export interface DefinedContributionPlanEmployerMatchingContributionPercentUnits {
-  pure: Share[];
-}
-
 export interface NumberOf {
   label:       string;
   description: string;
   units:       NumberOfOperatingSegmentsUnits;
+}
+
+export interface DefinedContributionPlanEmployerMatchingContributionPercentUnits {
+  pure: Share[];
 }
 
 export interface NumberOfOperatingSegmentsUnits {
