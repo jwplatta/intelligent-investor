@@ -6,3 +6,71 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.company-data-container {
+  width: 100%;
+}
+
+.company-data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.company-data-row-dark {
+  background-color: var(--background-secondary);
+}
+
+.company-data-row-light {
+  background-color: var(--background-secondary-alt);
+}
+
+.company-data-cell {
+  padding: 8px;
+}
+
+.company-data-controls {
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.company-data-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+
+.export-button {
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  background-color: var(--background-primary);
+  flex-shrink: 0;
+  align-self: flex-end;
+  padding: 5px;
+}
+
+.export-button:hover {
+  background-color: var(--background-secondary);
+}
+
+.export-button:active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(2px);
+}
+
+.select-control {
+  padding: 2px;
+}
+
+.select-metric-control {
+  padding: 2;
+  width: 60%;
+}
