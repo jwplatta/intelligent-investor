@@ -4,8 +4,8 @@
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Fetches and displays company's data from SEC and Yahoo Finance.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"author": "Joseph Platta",
+	"authorUrl": "https://github.com/jwplatta",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }
