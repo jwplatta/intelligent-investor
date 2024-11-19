@@ -15,13 +15,24 @@ export default class SettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Email')
+			.setDesc('The email address is necessary for sending requests to the SEC to fetch the company data.')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('Enter your email address')
+				.setValue(this.plugin.settings.email)
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.email = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Export Directory')
+			.setDesc('The directory where the exported company data will be saved.')
+			.addText(text => text
+				.setPlaceholder('/path/to/export/directory')
+				.setValue(this.plugin.settings.exportDirectory)
+				.onChange(async (value) => {
+					this.plugin.settings.exportDirectory = value;
 					await this.plugin.saveSettings();
 				}));
 	}
