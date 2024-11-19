@@ -16,7 +16,7 @@ export default class IntelligentInvestor extends Plugin {
 		this.registerView(
 			COMPANY_DATA_VIEW,
 			(leaf) => {
-				return new CompanyDataView(leaf, this.app, null)
+				return new CompanyDataView(leaf, this.app, this.settings, null)
 			}
 		);
 
@@ -24,7 +24,7 @@ export default class IntelligentInvestor extends Plugin {
 			id: 'search-company-data',
 			name: 'Search Company SEC Data',
 			callback: async () => {
-				const companyCIKs = await fetchCompanyCIKs();
+				const companyCIKs = await fetchCompanyCIKs(this.settings.email);
 				new CompanySearch(this.app, this.settings, this, companyCIKs).open();
 			}
 		});
