@@ -1,5 +1,7 @@
+import { App, normalizePath, TFile, Notice } from 'obsidian';
+import { IntelligentInvestorSettings } from '@/src/settings/IntelligentInvestorSettings';
 import { useState, useEffect } from 'react';
-import { CompanyData, Share, UsGaap } from '@/src/types/CompanyData';
+import { CompanyData, Share } from '@/src/types/CompanyData';
 import getUnits from '@/src/components/getUnits';
 
 // import { Line } from 'react-chartjs-2';
@@ -7,24 +9,21 @@ import getUnits from '@/src/components/getUnits';
 // ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface CompanyDataDisplayProps {
+  app: App;
+  settings: IntelligentInvestorSettings;
   companyData: CompanyData;
 }
 
-export default function CompanyDataDisplay({ companyData }: CompanyDataDisplayProps) {
-  // const [companyData, setCompanyData] = useState<CompanyData | null>(null);
+export default function CompanyDataDisplay({ app, settings, companyData }: CompanyDataDisplayProps) {
   const [formType, setFormType] = useState("10-Q");
-  const [companyMetrics, setCompanyMetrics] = useState<string[]>([]);
   const [companyMetric, setCompanyMetric] = useState("Assets");
   const [years, setYears] = useState<number[]>([]);
-  const [startYear, setStartYear] = useState("None");
-  const [endYear, setEndYear] = useState("None");
+  const [startYear, setStartYear] = useState<number>(0);
+  const [endYear, setEndYear] = useState<number>(0);
   const [displayData, setDisplayData] = useState<Share[]>([]);
+  const fiscalQuarterOrder = { Q1: 1, Q2: 2, Q3: 3, Q4: 4, FY: 5 } as any;
 
   useEffect(() => {
-    console.log("Company Data Display: ", companyData);
-    setCompanyMetrics(Object.keys(companyData.facts["us-gaap"]));
-    console.log(companyMetric, ": ", companyData.facts["us-gaap"][companyMetric as keyof UsGaap])
-
     const units = getUnits(companyData, companyMetric);
     const years = Array.from(
       new Set(
@@ -35,41 +34,58 @@ export default function CompanyDataDisplay({ companyData }: CompanyDataDisplayPr
     ) as number[];
     setYears(years);
 
-    const startYear = Math.min(...years as number[]);
-    setStartYear(startYear.toString());
+    if (startYear === 0) {
+      setStartYear(years[0]);
+    }
+    if (endYear === 0) {
+      setEndYear(years[years.length - 1]);
+    }
 
-    const endYear = Math.max(...years as number[]);
-    setEndYear(endYear.toString());
-  }, []);
+    const data = units
+      .filter((datum: any) => {
+        return datum.form === formType && datum.fy >= startYear && datum.fy <= endYear
+      })
+      .slice()
+      .sort((a: any, b: any) => {
+        if (a.fy !== b.fy) {
+          return a.fy - b.fy;
+        }
 
-  console.log("Company Data Display: ", companyData);
-  const assets = companyData.facts["us-gaap"].Assets;
+        if (fiscalQuarterOrder[a.fp] !== fiscalQuarterOrder[b.fp]) {
+          return fiscalQuarterOrder[a.fp] - fiscalQuarterOrder[b.fp];
+        }
 
-  const fiscalQuarterOrder = { Q1: 1, Q2: 2, Q3: 3, Q4: 4, FY: 5 };
-  const quarterlyReports = assets.units.USD
-    .filter(report => report.form === "10-Q")
-    .slice()
-    .sort((a, b) => {
-      if (a.fy !== b.fy) {
-        return a.fy - b.fy;
-      }
+        const endDateComparison = new Date(a.end).getTime() - new Date(b.end).getTime();
+        if (endDateComparison !== 0) {
+          return endDateComparison;
+        }
 
-      if (fiscalQuarterOrder[a.fp] !== fiscalQuarterOrder[b.fp]) {
-        return fiscalQuarterOrder[a.fp] - fiscalQuarterOrder[b.fp];
-      }
+        return a.frame ? 1 : -1;
+      });
 
-      const endDateComparison = new Date(a.end).getTime() - new Date(b.end).getTime();
-      if (endDateComparison !== 0) {
-        return endDateComparison;
-      }
+    console.log("Displaying Data: ", data);
 
-      return a.frame ? 1 : -1;
-    });
+    setDisplayData(data);
+  }, [formType, companyMetric, startYear, endYear]);
 
-  console.log("Quarterly Reports: ", quarterlyReports);
+  const exportCompanyData = async () => {
+    console.log("Exporting company data");
+    const csvContent = displayData.map((datum) => {
+      const row = [datum.fp, datum.fy, datum.filed, datum.end, datum.frame, datum.val];
+      return row.join(',');
+    }).join('\n');
 
-  const exportCompanyData = () => {
-    console.log("Exporting company dataa");
+    const exportDirectory = settings.exportDirectory;
+    const filePath = normalizePath(`${exportDirectory}/${companyData.entityName} ${companyMetric}.csv`);
+    const existingFile = app.vault.getAbstractFileByPath(filePath);
+
+    if (existingFile instanceof TFile) {
+        await app.vault.modify(existingFile, csvContent);
+    } else {
+        await app.vault.create(filePath, csvContent);
+    }
+
+    new Notice(`Company data exported to ${filePath}`);
   }
 
   const handleSelectFormType = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -77,16 +93,15 @@ export default function CompanyDataDisplay({ companyData }: CompanyDataDisplayPr
   }
 
   const handleSelectMetric = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("Selected Metric: ", e.target.value);
     setCompanyMetric(e.target.value);
   }
 
   const handleSelectStartYear = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setStartYear(e.target.value);
+    setStartYear(Number(e.target.value));
   }
 
   const handleSelectEndYear = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setEndYear(e.target.value);
+    setEndYear(Number(e.target.value));
   }
 
   return (
@@ -97,7 +112,7 @@ export default function CompanyDataDisplay({ companyData }: CompanyDataDisplayPr
           className="select-metric-control"
           onChange={handleSelectMetric}
         >
-          {companyMetrics.map((metric, index) => (
+          {Object.keys(companyData.facts["us-gaap"]).map((metric, index) => (
             <option key={index} value={metric}>{metric}</option>
           ))}
         </select>
@@ -158,7 +173,7 @@ export default function CompanyDataDisplay({ companyData }: CompanyDataDisplayPr
             </tr>
           </thead>
           <tbody>
-            {quarterlyReports.map((data: any, index: number) => (
+            {displayData.map((data: any, index: number) => (
               <tr key={index} className={index % 2 === 0 ? "company-data-row-light" : "company-data-row-dark"}>
                 <td className="company-data-cell">{data.fp}</td>
                 <td className="company-data-cell">{data.fy}</td>
