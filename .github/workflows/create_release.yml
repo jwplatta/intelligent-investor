@@ -19,7 +19,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies and build plugin
-        working-directory: ./plugin
+        working-directory: ./
         run: |
           npm install
           npm run build
@@ -27,9 +27,9 @@ jobs:
       - name: Prepare plugin files for release
         run: |
           mkdir release
-          cp ./plugin/main.js ./release/
-          cp ./plugin/manifest.json ./release/
-          cp ./plugin/styles.css ./release/
+          cp ./main.js ./release/
+          cp ./manifest.json ./release/
+          cp ./styles.css ./release/
 
       - name: Create Release
         id: create_release
