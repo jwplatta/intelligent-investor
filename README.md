@@ -22,7 +22,5 @@ Use the `Select Company` command to select a company to research. The plugin wil
 You can filter the financial data by year, metric, and statement. You can also export the data to a CSV file.
 
 <p align="center">
-  <img src="./docs/select_apple.gif" width="400">
+  <img src="./docs/example_select_apple.gif" width="400">
 </p>
-
-
