@@ -2,6 +2,11 @@
 
 Set of tools for researching and taking notes for investment ideas right in Obsidian. Currently, the plugin supports querying the SEC's EDGAR API.
 
+**Roadmap**
+- Fetch current share price to calculate financial ratios.
+- Add some basic charts to visualize financial data.
+- Build an assistant to help assess and construct investment ideas using the wisdom in the Intelligent Investor book.
+
 ## Install
 
 To install the plugin copy the `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
