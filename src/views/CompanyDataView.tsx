@@ -1,4 +1,5 @@
 import { App, ItemView, WorkspaceLeaf, ViewStateResult } from 'obsidian';
+import { IntelligentInvestorSettings } from '@/src/settings/IntelligentInvestorSettings';
 import { StrictMode } from 'react';
 import { Root, createRoot } from "react-dom/client";
 import CompanyDataDisplay from '@/src/components/CompanyDataDisplay';
@@ -14,11 +15,13 @@ interface CompanyDataViewState extends Record<string, unknown> {
 export class CompanyDataView extends ItemView {
   root: Root | null = null;
   app: App;
+  settings: IntelligentInvestorSettings;
   company: Company | null;
 
-  constructor(leaf: WorkspaceLeaf, app: App, company: Company | null) {
+  constructor(leaf: WorkspaceLeaf, app: App, settings: IntelligentInvestorSettings, company: Company | null) {
     super(leaf);
     this.app = app;
+    this.settings = settings;
     this.company = company;
   }
 
@@ -54,14 +57,14 @@ export class CompanyDataView extends ItemView {
     if (!this.company) {
       return;
     }
-    const companyData = await fetchCompanyData(this.company?.cik_str);
+    const companyData = await fetchCompanyData(this.company?.cik_str, this.settings.email);
     const container = this.containerEl.children[1];
     container.empty();
     this.root = createRoot(container);
 
     this.root.render(
       <StrictMode>
-				<CompanyDataDisplay companyData={companyData} />
+				<CompanyDataDisplay app={this.app} settings={this.settings} companyData={companyData} />
       </StrictMode>
    );
   }
