@@ -22,7 +22,7 @@ export default class IntelligentInvestor extends Plugin {
 
 		this.addCommand({
 			id: 'search-company-data',
-			name: 'Search Company SEC Data',
+			name: 'Select Company',
 			callback: async () => {
 				const companyCIKs = await fetchCompanyCIKs(this.settings.email);
 				new CompanySearch(this.app, this.settings, this, companyCIKs).open();
